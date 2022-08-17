@@ -1,0 +1,2 @@
+[workspace]
+members = ["cxxbind-egs", "cbind-egs"]
