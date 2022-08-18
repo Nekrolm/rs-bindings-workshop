@@ -34,6 +34,7 @@ mod tests {
         bridge::ffi::make_substitutor(pairs)
     }
 
+
     #[test]
     fn test_substitutor_ok() {
         let subs = make_test_substitutor();
@@ -48,5 +49,24 @@ mod tests {
         let subs = subs.as_ref().expect("should not be none");
         let replaced_err = subs.substitute("Мир").expect_err("should be error");
         println!("{replaced_err:?}")
+    }
+
+    #[test]
+    fn test_by_ref_substitutor() {
+        let from = "hello".to_string();
+        let to = "world".to_string();
+        let strings = vec![
+            bridge::ffi::SubstitutePair {
+                from : &from,
+                to : &to,
+            }
+        ];
+        let subs = bridge::ffi::make_by_ref_substitutor(&strings);
+        let subs = subs.as_ref().unwrap();
+        let replaced = subs.substitute("hello").unwrap();
+        assert_eq!(replaced, to);
+        assert_eq!(replaced.as_ptr(), to.as_str().as_ptr());
+
+        // drop(from) -- Compile error, from is borrowed by substitutor
     }
 }

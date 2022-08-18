@@ -53,4 +53,22 @@ std::unique_ptr<SubstitutorIface> make_substitutor(rust::Slice<const SubstituteP
     return std::make_unique<Substitutor>(std::move(replaces));
 }
 
+
+
+std::unique_ptr<ByRefSubstitutor> make_by_ref_substitutor(rust::Slice<const SubstitutePair> pairs) {
+    std::unordered_map<std::string_view, std::string_view> replaces;
+    for (auto [ from, to ] : pairs) {
+        std::string_view from_str { from.begin(), from.length() };
+        std::string_view to_str {to.begin(), to.length() };
+        replaces.insert({from_str, to_str});
+    }
+    return std::make_unique<ByRefSubstitutor>(ByRefSubstitutor { std::move(replaces) });
+}
+
+rust::Str ByRefSubstitutor::substitute(rust::Str str) const {
+    std::string_view s { str.begin(), str.length() };
+    auto ret = replaces.at(s);
+    return rust::Str{ ret.data(), ret.length() };
+}
+
 }
