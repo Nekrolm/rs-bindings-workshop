@@ -6,6 +6,13 @@
 
 namespace cxx_dep {
 
+struct SubstitutePair;
+
+class SubstitutorIface {
+public:
+    virtual ~SubstitutorIface() = default;
+    virtual rust::String substitute(rust::Str) const = 0;
+};
 
 class SummatorIface {
 public:
@@ -14,5 +21,7 @@ public:
 };
 
 std::unique_ptr<SummatorIface> make_summator();
+
+std::unique_ptr<SubstitutorIface> make_substitutor(rust::Slice<const SubstitutePair>);
 
 }

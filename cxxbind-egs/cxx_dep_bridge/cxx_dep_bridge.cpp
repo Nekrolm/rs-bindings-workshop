@@ -5,6 +5,7 @@
 #include <utility>
 
 #include <cstdlib>
+#include <unordered_map>
 
 
 
@@ -28,6 +29,28 @@ std::unique_ptr<SummatorIface> make_summator() {
     greeating += std::to_string(rand() % 10);
     log_message(greeating);
     return std::make_unique<JustSummator>();
+}
+
+
+struct Substitutor : public SubstitutorIface {
+    rust::String substitute(rust::Str str) const override {
+        std::string str_copy {str};
+        return replaces.at(str_copy);
+    }
+
+    explicit Substitutor(std::unordered_map<std::string, std::string> replaces) : replaces{std::move(replaces)} {}
+
+    std::unordered_map<std::string, std::string> replaces;
+};
+
+std::unique_ptr<SubstitutorIface> make_substitutor(rust::Slice<const SubstitutePair> pairs) {
+    std::unordered_map<std::string, std::string> replaces;
+    for (auto [ from, to ] : pairs) {
+        std::string from_str { from };
+        std::string to_str { to };
+        replaces.insert({std::move(from_str), std::move(to_str)});
+    }
+    return std::make_unique<Substitutor>(std::move(replaces));
 }
 
 }

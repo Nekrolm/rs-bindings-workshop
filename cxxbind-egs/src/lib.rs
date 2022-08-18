@@ -23,4 +23,30 @@ mod tests {
         let err = sum.expect_err("there should be error");
         println!("{err:?}")
     }
+
+    fn make_test_substitutor() -> cxx::UniquePtr<bridge::ffi::SubstitutorIface>{
+        let pairs = &[
+            bridge::ffi::SubstitutePair {
+                from : "hello",
+                to : "world",
+            }
+        ];
+        bridge::ffi::make_substitutor(pairs)
+    }
+
+    #[test]
+    fn test_substitutor_ok() {
+        let subs = make_test_substitutor();
+        let subs = subs.as_ref().expect("should not be none");
+        let replaced = subs.substitute("hello").unwrap();
+        assert_eq!(replaced, "world");
+    }
+
+    #[test]
+    fn test_substitutor_err() {
+        let subs = make_test_substitutor();
+        let subs = subs.as_ref().expect("should not be none");
+        let replaced_err = subs.substitute("Мир").expect_err("should be error");
+        println!("{replaced_err:?}")
+    }
 }
